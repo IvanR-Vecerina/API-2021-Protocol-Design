@@ -1,7 +1,7 @@
 package ch.heigvd.api.calc;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,6 +17,46 @@ public class Client {
      *
      * @param args no args required
      */
+
+    public void sendRequest() {
+        Socket clientSocket = null;
+        BufferedWriter out = null;
+        BufferedReader in = null;
+        try {
+            clientSocket = new Socket("127.0.0.1", 42069);
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            String request = br.readLine() + "\r\n";
+            out.write(request);
+            out.flush();
+
+            String line;
+            while ((line = in.readLine()) != null) {
+                LOG.log(Level.INFO, line);
+            }
+
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, ex.toString(), ex);
+        } finally {
+            try {
+                if (out != null) out.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+            try {
+                if (in != null) in.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+            try {
+                if (clientSocket != null && ! clientSocket.isClosed()) clientSocket.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+        }
+    }
     public static void main(String[] args) {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
