@@ -4,6 +4,7 @@ import javax.print.DocFlavor;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,16 +58,18 @@ public class ServerWorker implements Runnable {
                 String line = in.readLine();
                 String[] operators = line.split("\\s+"); // String array, each element is text between " "
 
-                if (operators[0] != "GOODBYE_MY_LOVER" && operators.length !=3){
+                boolean bye = operators[0].equals("GOODBYE_MY_LOVER");
+
+                if (!bye && operators.length !=3){
                     Output = "#ERROR - wrong syntax\n";
                 }
 
-                if (operators[1] != "GOODBYE_MY_LOVER" && operators.length !=3){
+                if (!bye && operators.length !=3){
                     Output = "#ERROR - wrong syntax\n";
                 }
 
-                int op1 = Integer.parseInt(operators[1]);
-                int op2 = Integer.parseInt(operators[2]);
+                int op1 = bye ? 0 : Integer.parseInt(operators[1]);
+                int op2 = bye ? 0 : Integer.parseInt(operators[2]);
 
                 switch (operators[0]){
                     case "ADD":
@@ -96,11 +99,13 @@ public class ServerWorker implements Runnable {
                 out.write(Output);
                 out.flush();
 
-                in.close();
-                out.close();
 
-                if (operators[0] == "GOODBYE_MY_LOVER")
+                if (bye){
+                    in.close();
+                    out.close();
                     clientSocket.close();
+                }
+
 
 
             }

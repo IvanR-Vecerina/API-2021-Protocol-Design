@@ -15,7 +15,7 @@ public class Client {
     /**
      * Main function to run client
      *
-     * @param args no args required
+     * no args required
      */
 
     public static void sendRequest() {
@@ -23,20 +23,23 @@ public class Client {
         BufferedWriter out = null;
         BufferedReader in = null;
         try {
-            clientSocket = new Socket("192.168.99.24", 42069);
+            clientSocket = new Socket("172.22.64.1", 42069);
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            String request = br.readLine() + "\r\n";
-            out.write(request);
-            out.flush();
 
             String line;
-            while ((line = in.readLine()) != null) {
-                LOG.log(Level.INFO, line);
-            }
 
+            while (true) {
+                String request = br.readLine() + "\r\n";
+                out.write(request);
+                out.flush();
+
+                if ((line = in.readLine()) != null) {
+                    LOG.log(Level.INFO, line);
+                }
+            }
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.toString(), ex);
         } finally {
