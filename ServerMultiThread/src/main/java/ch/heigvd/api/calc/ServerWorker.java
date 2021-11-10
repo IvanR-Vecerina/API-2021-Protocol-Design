@@ -1,5 +1,6 @@
 package ch.heigvd.api.calc;
 
+import javax.print.DocFlavor;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -10,6 +11,9 @@ import java.util.logging.Logger;
  * Calculator worker implementation
  */
 public class ServerWorker implements Runnable {
+    private Socket clientSocket;
+    private BufferedReader in = null;
+    private BufferedWriter out = null;
 
     private final static Logger LOG = Logger.getLogger(ServerWorker.class.getName());
 
@@ -18,7 +22,7 @@ public class ServerWorker implements Runnable {
      *
      * @param clientSocket connected to worker
      */
-    public ServerWorker(Socket clientSocket) {
+    public ServerWorker(Socket clientSocket) throws IOException {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
@@ -26,7 +30,9 @@ public class ServerWorker implements Runnable {
          *   server calls the ServerWorker.run method.
          *   Don't call the ServerWorker.run method here. It has to be called from the Server.
          */
-
+        this.clientSocket = clientSocket;
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
+        out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
     }
 
     /**
@@ -44,6 +50,63 @@ public class ServerWorker implements Runnable {
          *     - Handle the message
          *     - Send to result to the client
          */
+        try {
+            String Output = "";
+
+            while (!clientSocket.isClosed()) {
+                String line = in.readLine();
+                String[] operators = line.split("\\s+"); // String array, each element is text between " "
+
+                if (operators[0] != "GOODBYE_MY_LOVER" && operators.length !=3){
+                    Output = "#ERROR - wrong syntax\n";
+                }
+
+                if (operators[1] != "GOODBYE_MY_LOVER" && operators.length !=3){
+                    Output = "#ERROR - wrong syntax\n";
+                }
+
+                int op1 = Integer.parseInt(operators[1]);
+                int op2 = Integer.parseInt(operators[2]);
+
+                switch (operators[0]){
+                    case "ADD":
+                        Output = op1 + " + " + op2 + " = " + (op1 + op2) + "\n";
+                        break;
+                    case "SUB":
+                        Output = op1 + " - " + op2 + " = " + (op1 - op2) + "\n";
+                        break;
+                    case "MUL":
+                        Output = op1 + " * " + op2 + " = " + (op1 * op2) + "\n";
+                        break;
+                    case "DIV":
+                        Output = op1 + " / " + op2 + " = " + (op1 / op2) + "\n";
+                        break;
+                    case "MOD":
+                        Output = op1 + " % " + op2 + " = " + (op1 % op2) + "\n";
+                        break;
+                    case "POW":
+                        Output = op1 + "^" + op2 + " = " + Math.pow(op1,op2) + "\n";
+                        break;
+                    case "GOODBYE_MY_LOVER":
+                        Output = "Goodbye, my friend!\n";
+                        break;
+                }
+
+
+                out.write(Output);
+                out.flush();
+
+                in.close();
+                out.close();
+
+                if (operators[0] == "GOODBYE_MY_LOVER")
+                    clientSocket.close();
+
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 }

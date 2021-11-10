@@ -18,12 +18,12 @@ public class Client {
      * @param args no args required
      */
 
-    public void sendRequest() {
+    public static void sendRequest() {
         Socket clientSocket = null;
         BufferedWriter out = null;
         BufferedReader in = null;
         try {
-            clientSocket = new Socket("127.0.0.1", 42069);
+            clientSocket = new Socket("192.168.99.24", 42069);
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
@@ -72,6 +72,7 @@ public class Client {
          *     - send the command to the server
          *     - read the response line from the server (using BufferedReader.readLine)
          */
+        sendRequest();
 
         stdin = new BufferedReader(new InputStreamReader(System.in));
 
