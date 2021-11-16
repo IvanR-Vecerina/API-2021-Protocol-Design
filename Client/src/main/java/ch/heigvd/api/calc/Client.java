@@ -23,7 +23,7 @@ public class Client {
         BufferedWriter out = null;
         BufferedReader in = null;
         try {
-            clientSocket = new Socket("172.22.64.1", 42069);
+            clientSocket = new Socket("127.0.0.1", 42069);
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
